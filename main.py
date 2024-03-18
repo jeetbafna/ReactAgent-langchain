@@ -1,7 +1,10 @@
 from dotenv import load_dotenv
 from langchain.agents import tool
-load_dotenv()
+from langchain.tools.render import render_text_description
+from langchain_community.chat_models.openai import ChatOpenAI
+from langchain_core.prompts import PromptTemplate
 
+load_dotenv()
 
 
 @tool
@@ -33,5 +36,12 @@ if __name__ == "__main__":
     Begin!
     
     Question: {input}
-    Thought:{agent_scratchpad}
+    Thought:
     """
+
+    prompt = PromptTemplate.from_template(template=template).partial(
+        tools=render_text_description(tools), tool_names=", ".join([t.name for t in tools])
+    )
+
+
+    llm = ChatOpenAI(temperature=0, stop=["\nObservation"])
